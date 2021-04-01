@@ -1,0 +1,80 @@
+<div class="register-box">
+    <div class="card card-outline card-primary">
+      <div class="card-header text-center">
+        <a href="/" class="h1"><%= appName %></a>
+      </div>
+      <div class="card-body">
+        <p class="login-box-msg">Register a new membership</p>
+        <%- include('../partials/flash-message'); -%>
+        <form action="/register" method="post">
+          <div class="input-group mb-3">
+            <input type="text" class="form-control <%= (typeof usrErrMsg !== 'undefined') ? 'is-invalid' : '' %>" placeholder="Full name" name="username" value="<%= (typeof usrErrVal !== 'undefined') ? usrErrVal : '' %>">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-user"></span>
+              </div>
+            </div>
+            <% if(typeof usrErrMsg !== 'undefined') { %>
+              <div class="invalid-feedback"><%= usrErrMsg %></div>
+            <% } %>
+          </div>
+          <div class="input-group mb-3">
+            <input type="email" class="form-control <%= (typeof emailErrMsg !== 'undefined') ? 'is-invalid' : '' %>" name="email" placeholder="Email" value="<%= (typeof emailErrVal !== 'undefined') ? emailErrVal : '' %>">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-envelope"></span>
+              </div>
+            </div>
+            <% if(typeof emailErrMsg !== 'undefined') { %>
+              <div class="invalid-feedback"><%= emailErrMsg %></div>
+            <% } %>
+          </div>
+          <div class="input-group mb-3">
+            <input type="password" class="form-control <%= (typeof pwdErrMsg !== 'undefined') ? 'is-invalid' : '' %>" name="password" placeholder="Password">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-lock"></span>
+              </div>
+            </div>
+            <% if(typeof pwdErrMsg !== 'undefined') { %>
+              <div class="invalid-feedback"><%= pwdErrMsg %></div>
+            <% } %>
+          </div>
+          <div class="input-group mb-3">
+            <input type="password" class="form-control <%= (typeof cnfPwdErrMsg !== 'undefined') ? 'is-invalid' : '' %>" name="confirm_password" placeholder="Retype password">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-lock"></span>
+              </div>
+            </div>
+            <% if(typeof cnfPwdErrMsg !== 'undefined') { %>
+              <div class="invalid-feedback"><%= cnfPwdErrMsg %></div>
+            <% } %>
+          </div>
+          <div class="row">
+            <div class="col-8">
+            </div>
+            <!-- /.col -->
+            <div class="col-4">
+              <button type="submit" class="btn btn-primary btn-block">Register</button>
+            </div>
+            <!-- /.col -->
+          </div>
+        </form>
+  
+        <!-- <div class="social-auth-links text-center">
+          <a href="#" class="btn btn-block btn-primary">
+            <i class="fab fa-facebook mr-2"></i>
+            Sign up using Facebook
+          </a>
+          <a href="#" class="btn btn-block btn-danger">
+            <i class="fab fa-google-plus mr-2"></i>
+            Sign up using Google+
+          </a>
+        </div> -->
+  
+        <a href="/login" class="text-center">I already have a membership</a>
+      </div>
+      <!-- /.form-box -->
+    </div><!-- /.card -->
+</div>
