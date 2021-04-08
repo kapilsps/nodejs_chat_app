@@ -9,6 +9,8 @@ const inputMessage = document.getElementById('input-message');
 const myVideo = document.createElement('video');
     myVideo.muted = true;
 let myVideoStream;
+let screenShareStream;
+let myuserId;
 
 /**show chat box */
 $('#chat-button').click(function(){
@@ -86,6 +88,7 @@ socket.on('createMessage', (data) => {
 
 /**chat message end */
 
+/**get user audio and video */
 navigator.mediaDevices.getUserMedia({
     video:true,
     audio:true
@@ -106,7 +109,33 @@ navigator.mediaDevices.getUserMedia({
 }).catch(err => {
     console.log(err);
 });
+/**end of user audio video */
 
+
+/**screen share */
+$('#present-screen-button').click(() => {
+    navigator.mediaDevices.getDisplayMedia({video:true})
+            .then(stream => {
+                screenShareStream = stream;
+                $('#present-screen-button').toggle();
+                $('#stop-screen-button').toggle();
+
+                // const video = document.createElement('video');
+                // addVideoStream(video, stream);
+                myPeer.call(myuserId, stream);
+
+            }).catch(e => {
+                console.log(e);
+            });
+});
+
+$('#stop-screen-button').click(() => {
+    screenShareStream.getVideoTracks()[0].stop();
+    $('#present-screen-button').toggle();
+    $('#stop-screen-button').toggle();
+});
+
+/**end of screen share */
 
 /** join room */
 myPeer.on('open', id => {
