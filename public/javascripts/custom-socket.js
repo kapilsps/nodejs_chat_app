@@ -1,21 +1,98 @@
-const socket = io('/');
+const socket = io();
 const videoGrid = document.getElementById('video-grid');
 const peers = {};
-// const myPeer = new Peer(undefined, {
-//     host:'/',
-//     port:'3002'
-// });
-
-
+const myPeer = new Peer(undefined, {
+    host:'/',
+    port:'3001'
+});
+const inputMessage = document.getElementById('input-message');
 const myVideo = document.createElement('video');
-myVideo.muted = true;
+    myVideo.muted = true;
+let myVideoStream;
+
+/**show chat box */
+$('#chat-button').click(function(){
+    $('#chat').toggle();
+    $('#participants').toggle();
+});
+/**end chat box */
+
+/**paticipants box */
+$('#participants-button').click(function(){
+    $('#participants').toggle();
+    $('#chat').toggle();
+});
+/**end of participants box */
+
+/**audio */
+$('#mute-button').click(function() {
+    $(this).toggle();
+    $('#unmute-button').toggle();
+    muteUnmute();
+});
+
+$('#unmute-button').click(function() {
+    $(this).toggle();
+    $('#mute-button').toggle();
+    muteUnmute();
+});
+
+const muteUnmute = () => {
+    const enabled = myVideoStream.getAudioTracks()[0].enabled;
+    if(enabled){
+        myVideoStream.getAudioTracks()[0].enabled = false;
+    }else{
+        myVideoStream.getAudioTracks()[0].enabled = true;
+    }
+}
+/**end audio */
+
+/**video */
+$('#stop-video-button').click(function() {
+    $(this).toggle();
+    $('#play-video-button').toggle();
+    playStop();
+});
+
+$('#play-video-button').click(function() {
+    $(this).toggle();
+    $('#stop-video-button').toggle();
+    playStop();
+});
+
+const playStop = () => {
+    const enabled = myVideoStream.getVideoTracks()[0].enabled;
+    if(enabled){
+        myVideoStream.getVideoTracks()[0].enabled = false;
+    }else{
+        myVideoStream.getVideoTracks()[0].enabled = true;
+    }
+}
+
+/**end video */
+
+/** chat message start */
+document.addEventListener("keydown", function(event) {
+    if (event.keyCode === 13) {
+      socket.emit('message', inputMessage.value, USER_NAME);
+      inputMessage.value = '';
+    }
+});
+
+socket.on('createMessage', (data) => {
+    $('#message-window').append('<li><b>'+data.username+'</b>:  '+data.msg+'</li>');
+    $('#message-window').scrollTop($('#message-window').prop('scrollHeight'));
+});
+
+/**chat message end */
 
 navigator.mediaDevices.getUserMedia({
     video:true,
     audio:true
 }).then(stream => {
-    addVideoStream(myVideo,stream);
+    myVideoStream = stream;
 
+    addVideoStream(myVideo,stream);
     myPeer.on('call', call => {
         call.answer(stream);
         const video = document .createElement('video');
@@ -23,24 +100,22 @@ navigator.mediaDevices.getUserMedia({
             addVideoStream(video, userVideoStream);
         });
     });
-
-    socket.on('user-connected', userId => {
+    socket.on('user-connected', (userId) => {
         connectToNewUser(userId, stream);
     });
-
-
 }).catch(err => {
     console.log(err);
 });
 
-// myPeer.on('open', id => {
-// });
-socket.emit('join-room', ROOM_ID, USER_ID);
 
-
-socket.on('user-connected', userId => {
-    console.log(userId);
+/** join room */
+myPeer.on('open', id => {
+    socket.emit('join-room', ROOM_ID, id, USER_NAME);
 });
+
+/**end of room */
+
+/**user connected and disconneted */
 
 socket.on('user-disconnected', userId => {
     if(peers[userId]){
@@ -48,6 +123,19 @@ socket.on('user-disconnected', userId => {
     }
 });
 
+/**user connected and disconneted end */
+
+/**user add */
+socket.on('addParticipants', (data) => {
+    $('#participants-list li').remove();
+    data.forEach(element => {
+        if(element.roomId == ROOM_ID){
+            $('#participants-list').append(`<li>${element.name}</li>`);
+        }
+    });
+});
+
+/**end of user add */
 
 function connectToNewUser(userId, stream){
     const call = myPeer.call(userId, stream);

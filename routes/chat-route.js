@@ -5,6 +5,8 @@ const chatController = require('../controllers/user/chat/chat-controller');
 
 
 /* GET home page. */
-router.get('/chat-room', chatController.index);
+router.get('/create/chat-room', chatController.index);
+
+router.get('/chat-room/:roomId', chatController.room);
 
 module.exports = router;

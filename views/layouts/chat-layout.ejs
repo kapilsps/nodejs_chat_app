@@ -18,10 +18,16 @@
             <div class="content-header">
                 <%- include('../partials/flash-message'); -%>
             </div>
-            <div class="content">
-                <%- body %>
+            <div class="row"  style="display: flex;">
+                <div class="col-md-9">
+                    <%- body %>
+                </div>
+                <div class="col-md-3">
+                    <%- include('../partials/chat/side-bar'); -%>
+                </div>
             </div>
         </div>
+        <%- include('../partials/chat/footer'); -%>
     </div>
     
     <!-- jQuery library -->
