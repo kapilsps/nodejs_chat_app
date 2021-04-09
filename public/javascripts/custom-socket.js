@@ -119,9 +119,7 @@ $('#present-screen-button').click(() => {
                 screenShareStream = stream;
                 $('#present-screen-button').toggle();
                 $('#stop-screen-button').toggle();
-
-                // const video = document.createElement('video');
-                // addVideoStream(video, stream);
+                
                 myPeer.call(myuserId, stream);
 
             }).catch(e => {
