@@ -6,6 +6,9 @@ const forgotPasswordController = require('../controllers/auth/forgot-password-co
 const loginValidations = require('../validations/login-validation');
 const registerValidations = require('../validations/register-validation');
 const redirectIfAuthenticatedMiddleware = require('../middleware/redirect-if-authenticated');
+const forgotValidations = require('../validations/forgot-password-validation');
+const resetPasswordController = require('../controllers/auth/reset-password-controller');
+const resetPasswordValidation = require('../validations/reset-password-validation');
 
 router.get('/login', redirectIfAuthenticatedMiddleware.index, loginController.index);
 
@@ -18,5 +21,11 @@ router.get('/register', redirectIfAuthenticatedMiddleware.index,  registerContro
 router.post('/register', registerValidations.index, registerController.register);
 
 router.get('/forgot-password', redirectIfAuthenticatedMiddleware.index, forgotPasswordController.index);
+
+router.post('/forgot-password', forgotValidations.index, forgotPasswordController.sendLink);
+
+router.get('/reset/:token', redirectIfAuthenticatedMiddleware.index, resetPasswordController.index);
+
+router.post('/change-password', resetPasswordValidation.index, resetPasswordController.store);
 
 module.exports = router;

@@ -58,13 +58,13 @@ app.use(flash());
 /** routes  */
 app.use((req, res, next) => {
   res.locals.authenticated = req.isAuthenticated() ? true : false;
-  res.locals.appName = "NetChat App";
+  res.locals.appName = process.env.APP_NAME;
   res.locals.successMsg = req.flash('success');
   res.locals.errorMsg = req.flash('fail');
   res.locals.infoMsg = req.flash('info');
   res.locals.warningMsg = req.flash('warning');
   res.locals.error = req.flash('error');
-  res.locals.title = 'Chat App';
+  res.locals.title = process.env.APP_NAME;
   next();
 });
 app.use('/', indexRouter);

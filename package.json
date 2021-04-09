@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "start:dev": "nodemon set DEBUG=2-video-chat-app:* ./bin/www"
+    "start": "node -r dotenv/config ./bin/www",
+    "start:dev": "nodemon -r dotenv/config ./bin/www"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
@@ -12,6 +12,7 @@
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "express-ejs-layouts": "^2.5.0",
