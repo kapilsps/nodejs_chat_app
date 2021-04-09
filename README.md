@@ -6,3 +6,4 @@
 -> copy .env.example file to .env file <br>
 -> add credentails <br>
 -> npm run start:dev to run the application<br>
+-> peerjs --port=3001 run the peerjs server
