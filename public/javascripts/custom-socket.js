@@ -114,7 +114,7 @@ navigator.mediaDevices.getUserMedia({
 
 /**screen share */
 $('#present-screen-button').click(() => {
-    navigator.mediaDevices.getDisplayMedia({video:true})
+    navigator.mediaDevices.getDisplayMedia({video:true, cursor:true})
             .then(stream => {
                 screenShareStream = stream;
                 $('#present-screen-button').toggle();
@@ -131,6 +131,7 @@ $('#present-screen-button').click(() => {
 
 $('#stop-screen-button').click(() => {
     screenShareStream.getVideoTracks()[0].stop();
+    myPeer.call(myuserId, myVideoStream);
     $('#present-screen-button').toggle();
     $('#stop-screen-button').toggle();
 });
@@ -139,6 +140,7 @@ $('#stop-screen-button').click(() => {
 
 /** join room */
 myPeer.on('open', id => {
+    myuserId = id;
     socket.emit('join-room', ROOM_ID, id, USER_NAME);
 });
 
