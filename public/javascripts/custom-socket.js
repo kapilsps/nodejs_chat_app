@@ -1,10 +1,7 @@
 const socket = io();
 const videoGrid = document.getElementById('video-grid');
 const peers = {};
-const myPeer = new Peer(undefined, {
-    host:'/',
-    port:'3001'
-});
+const myPeer = new Peer();
 const inputMessage = document.getElementById('input-message');
 const myVideo = document.createElement('video');
     myVideo.muted = true;
@@ -119,7 +116,13 @@ $('#present-screen-button').click(() => {
                 screenShareStream = stream;
                 $('#present-screen-button').toggle();
                 $('#stop-screen-button').toggle();
-                
+                // somebody clicked on "Stop sharing"
+                screenShareStream.getVideoTracks()[0].onended = function () {
+                    myPeer.call(myuserId, myVideoStream);
+                    $('#present-screen-button').toggle();
+                    $('#stop-screen-button').toggle();
+                };
+                // console.log(stream);
                 myPeer.call(myuserId, stream);
 
             }).catch(e => {
