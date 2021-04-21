@@ -4,4 +4,17 @@
   /* border: 3px solid #73AD21; */
   padding: 10px;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.meeting-div{
+  padding: 20px;
+}
+
+.join-meeting{
+  display: flex;
+  flex-direction: column;
 }

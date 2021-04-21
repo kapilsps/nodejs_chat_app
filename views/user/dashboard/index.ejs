@@ -1,4 +1,23 @@
 <div class="center">
-    <h1>Start Meeting</h1>
-    <a href="/users/create/chat-room" target="_blank" class="btn btn-primary">Start</a>
+    <div class="meeting-div">
+        <h1>Start Meeting</h1>
+        <a href="/users/create/chat-room" target="_blank" class="btn btn-primary">Start</a>
+    </div>
+    <div class="meeting-div join-meeting">
+        <h1>Join Meeting</h1>
+        <div class="center">
+            <input type="text" id="roomId" placeholder="Enter room id.." class="mt-3">
+            <button class="btn btn-primary mt-3" id="join-meeting-btn">Join Meeting</button>
+        </div>
+    </div>
 </div>
+
+<script>
+    $(function () {
+        $('#join-meeting-btn').click(() => {
+            let roomId = $('#roomId').val();
+            window.open(`/users/chat-room/${roomId}`, '_blank');
+            window.location.reload();
+        });
+    });
+</script>
