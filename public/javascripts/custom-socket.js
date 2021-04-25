@@ -208,10 +208,6 @@ function connectToNewUser(userId, stream) {
     video.remove();
   });
 
-  call.on('error', (err) => {
-    console.log(err);
-  });
-
   peers[userId] = call;
 }
 
