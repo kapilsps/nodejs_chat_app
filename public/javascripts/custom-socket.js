@@ -1,6 +1,6 @@
 const socket = io();
 const videoGrid = document.getElementById("video-grid");
-const peers = [];
+const peers = {};
 const myPeer = new Peer();
 const inputMessage = document.getElementById("input-message");
 const myVideo = document.createElement("video");
@@ -8,7 +8,6 @@ myVideo.muted = true;
 let myVideoStream;
 let screenShareStream;
 let myuserId;
-let userCall;
 
 /**show chat box */
 $("#chat-button").click(function () {
@@ -105,7 +104,6 @@ navigator.mediaDevices
 
 /**on call by other user */
 myPeer.on("call", (call) => {
-  userCall = call;
   peers[call.peer] = call;
   call.answer(myVideoStream);
   const video = document.createElement("video");
@@ -117,11 +115,11 @@ myPeer.on("call", (call) => {
 
 /**on user connected share our stream */
 socket.on("user-connected", (userId) => {
-    // if(screenShareStream){
-    //     connectToNewUser(userId, screenShareStream);
-    // }else{
+    if(screenShareStream){
+        connectToNewUser(userId, screenShareStream);
+    }else{
         connectToNewUser(userId, myVideoStream);
-    // }
+    }
 });
 /**end */
 
@@ -137,19 +135,11 @@ $("#present-screen-button").click(() => {
 
       $("#present-screen-button").toggle();
       $("#stop-screen-button").toggle();
-
-      if(userCall){
-        userCall.peerConnection.getSenders().forEach((element) => {
-          element.replaceTrack(screenShareStream.getVideoTracks()[0]);
-        });
-      }
+      
+      changeStreams(screenShareStream);
 
       screenShareStream.getVideoTracks()[0].onended = function () {
-        if(userCall){
-          userCall.peerConnection.getSenders().forEach((element) => {
-            element.replaceTrack(myVideoStream.getVideoTracks()[0]);
-          });
-        }
+        changeStreams(myVideoStream);
         addVideoStream(myVideo, myVideoStream);
         $("#present-screen-button").toggle();
         $("#stop-screen-button").toggle();
@@ -163,11 +153,7 @@ $("#present-screen-button").click(() => {
 
 $("#stop-screen-button").click(() => {
   screenShareStream.getVideoTracks()[0].stop();
-  if(userCall){
-    userCall.peerConnection.getSenders().forEach((element) => {
-      element.replaceTrack(myVideoStream.getVideoTracks()[0]);
-    });
-  }
+  changeStreams(myVideoStream);
   addVideoStream(myVideo, myVideoStream);
   $("#present-screen-button").toggle();
   $("#stop-screen-button").toggle();
@@ -222,6 +208,10 @@ function connectToNewUser(userId, stream) {
     video.remove();
   });
 
+  call.on('error', (err) => {
+    console.log(err);
+  });
+
   peers[userId] = call;
 }
 
@@ -247,4 +237,15 @@ function copyRoomId() {
 
   /* Alert the copied text */
   alert("Copied the roomId: " + copyText.value);
+}
+
+
+function changeStreams(stream) {
+  for(const item in peers){
+    peers[item].peerConnection.getSenders().forEach((element) => {
+          if(element.track.kind == 'video'){
+            element.replaceTrack(stream.getVideoTracks()[0]);
+          }
+    });
+  }
 }
