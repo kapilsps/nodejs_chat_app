@@ -2,7 +2,7 @@ const { Server } = require("socket.io");
 
 module.exports = (server) => {
     const io = new Server(server);
-    const users = [];
+    let users = [];
     io.on('connection', (socket) => {
         socket.on('join-room', (roomId, userId, userName) => {
             
@@ -28,7 +28,12 @@ module.exports = (server) => {
             socket.join(roomId);
             socket.to(roomId).emit('user-connected', userId);
             socket.on('disconnect', () => {
-                socket.to(roomId).emit('user-disconnected', userId);
+                users = users.filter((element) => {
+                    if((element.id != userId)){
+                        return element;
+                    }
+                });
+                socket.to(roomId).emit('user-disconnected', {userId, users});
             });
 
             /**

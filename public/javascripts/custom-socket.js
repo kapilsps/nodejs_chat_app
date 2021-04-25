@@ -1,6 +1,6 @@
 const socket = io();
 const videoGrid = document.getElementById("video-grid");
-const peers = {};
+const peers = [];
 const myPeer = new Peer();
 const inputMessage = document.getElementById("input-message");
 const myVideo = document.createElement("video");
@@ -8,7 +8,7 @@ myVideo.muted = true;
 let myVideoStream;
 let screenShareStream;
 let myuserId;
-let currentUserCall;
+let userCall;
 
 /**show chat box */
 $("#chat-button").click(function () {
@@ -96,56 +96,65 @@ navigator.mediaDevices
   })
   .then((stream) => {
     myVideoStream = stream;
-
     addVideoStream(myVideo, stream);
-    myPeer.on("call", (call) => {
-      currentUserCall = call;
-      call.answer(stream);
-      const video = document.createElement("video");
-      call.on("stream", (userVideoStream) => {
-        addVideoStream(video, userVideoStream);
-      });
-    });
-    socket.on("user-connected", (userId) => {
-      connectToNewUser(userId, stream);
-    });
   })
   .catch((err) => {
     console.log(err);
   });
 /**end of user audio video */
 
+/**on call by other user */
+myPeer.on("call", (call) => {
+  userCall = call;
+  peers[call.peer] = call;
+  call.answer(myVideoStream);
+  const video = document.createElement("video");
+  call.on("stream", (userVideoStream) => {
+    addVideoStream(video, userVideoStream);
+  });
+});
+/**end */
+
+/**on user connected share our stream */
+socket.on("user-connected", (userId) => {
+    // if(screenShareStream){
+    //     connectToNewUser(userId, screenShareStream);
+    // }else{
+        connectToNewUser(userId, myVideoStream);
+    // }
+});
+/**end */
+
+
 /**screen share */
 $("#present-screen-button").click(() => {
   navigator.mediaDevices
     .getDisplayMedia({ video: true, cursor: true })
     .then((stream) => {
-      screenShareStream = stream.getVideoTracks()[0];
+      screenShareStream = stream;
 
       addVideoStream(myVideo, stream);
+
       $("#present-screen-button").toggle();
       $("#stop-screen-button").toggle();
-      console.log("mypeer", myPeer.listAllPeers);
-      console.log(screenShareStream);
-      if (currentUserCall) {
-        console.log(currentUserCall.peerConnection.getSenders());
-        currentUserCall.peerConnection.getSenders().forEach((element) => {
-          console.log("emeleme", element.track.kind);
-          console.log("share", screenShareStream.track.kind);
-          // if(element.track.kind == screenShareStream.track.kind){
-          console.log("here");
-          element.replaceTrack(screenShareStream);
-          // }
+
+      if(userCall){
+        userCall.peerConnection.getSenders().forEach((element) => {
+          element.replaceTrack(screenShareStream.getVideoTracks()[0]);
         });
       }
-      // console.log(myPeer);
 
-      // somebody clicked on "Stop sharing"
-      screenShareStream.onended = function () {
+      screenShareStream.getVideoTracks()[0].onended = function () {
+        if(userCall){
+          userCall.peerConnection.getSenders().forEach((element) => {
+            element.replaceTrack(myVideoStream.getVideoTracks()[0]);
+          });
+        }
         addVideoStream(myVideo, myVideoStream);
         $("#present-screen-button").toggle();
         $("#stop-screen-button").toggle();
       };
+
     })
     .catch((e) => {
       console.log(e);
@@ -153,7 +162,12 @@ $("#present-screen-button").click(() => {
 });
 
 $("#stop-screen-button").click(() => {
-  screenShareStream.stop();
+  screenShareStream.getVideoTracks()[0].stop();
+  if(userCall){
+    userCall.peerConnection.getSenders().forEach((element) => {
+      element.replaceTrack(myVideoStream.getVideoTracks()[0]);
+    });
+  }
   addVideoStream(myVideo, myVideoStream);
   $("#present-screen-button").toggle();
   $("#stop-screen-button").toggle();
@@ -171,10 +185,17 @@ myPeer.on("open", (id) => {
 
 /**user connected and disconneted */
 
-socket.on("user-disconnected", (userId) => {
-  if (peers[userId]) {
-    peers[userId].close();
+socket.on("user-disconnected", (data) => {
+  if (peers[data.userId]) {
+    peers[data.userId].close();
   }
+
+  $("#participants-list li").remove();
+  data.users.forEach((element) => {
+    if (element.roomId == ROOM_ID) {
+      $("#participants-list").append(`<li>${element.name}</li>`);
+    }
+  });
 });
 
 /**user connected and disconneted end */
@@ -188,7 +209,6 @@ socket.on("addParticipants", (data) => {
     }
   });
 });
-
 /**end of user add */
 
 function connectToNewUser(userId, stream) {
