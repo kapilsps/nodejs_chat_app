@@ -16,8 +16,12 @@
     $(function () {
         $('#join-meeting-btn').click(() => {
             let roomId = $('#roomId').val();
-            window.open(`/users/chat-room/${roomId}`, '_blank');
-            window.location.reload();
+            if(roomId.length > 0){
+                window.open(`/users/chat-room/${roomId}`, '_blank');
+                window.location.reload();
+            }else{
+                alert('Room Id is required.');
+            }
         });
     });
 </script>

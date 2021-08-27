@@ -13,7 +13,7 @@ video{
 
 #message-window{
     overflow-y: auto;
-    height: 500px;
+    height: 400px;
     list-style: none;
 }
 

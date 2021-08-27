@@ -7,16 +7,20 @@ module.exports = (server) => {
         socket.on('join-room', (roomId, userId, userName) => {
             
             if(users.length != 0){
-                users.forEach((element) => {
-                    if(element.id == userId){
-                        return;
+                let checkFlag = false;
+                for(let x in users){
+                    if((users[x].id == userId) && (users[x].roomId == roomId){
+                        checkFlag = true;
                     }
+                }
+
+                if(!checkFlag){
                     users.push({
                         id: userId,
                         name: userName,
                         roomId:roomId
                     });
-                });
+                }
             }else{
                 users.push({
                     id: userId,

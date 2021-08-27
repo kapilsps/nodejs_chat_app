@@ -12,14 +12,14 @@ let myuserId;
 /**show chat box */
 $("#chat-button").click(function () {
   $("#chat").toggle();
-  $("#participants").toggle();
+  $("#participants").css('display', 'none');
 });
 /**end chat box */
 
 /**paticipants box */
 $("#participants-button").click(function () {
   $("#participants").toggle();
-  $("#chat").toggle();
+  $("#chat").css('display', 'none');
 });
 /**end of participants box */
 
@@ -188,6 +188,7 @@ socket.on("user-disconnected", (data) => {
 
 /**user add */
 socket.on("addParticipants", (data) => {
+  console.log(data);
   $("#participants-list li").remove();
   data.forEach((element) => {
     if (element.roomId == ROOM_ID) {
